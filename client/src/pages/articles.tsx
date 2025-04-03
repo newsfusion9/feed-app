@@ -17,7 +17,6 @@ interface ArticlesResponse {
   hasMore: boolean;
 }
 
-
 export default function ArticlesPage() {
   const [page, setPage] = useState(1);
   const [allArticles, setAllArticles] = useState<Article[]>([]);
@@ -35,17 +34,29 @@ export default function ArticlesPage() {
   });
 
   const handleLoadMore = () => {
-    setPage(prev => prev + 1);
+    setPage((prev) => prev + 1);
   };
 
-
   useEffect(() => {
-    getAllArticles().then(articles => {
-      setAllArticles(articles)
+    getAllArticles().then((articles) => {
+      setAllArticles(articles);
     });
 
     const ws = setupWebSocketConnection({ queryClient, toast });
-    return () => ws.close()
+    ws.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "NEW_ARTICLE") {
+        // Show toast notification
+        toast({
+          title: "New Article Received",
+          description: data.article.data.title,
+        });
+        setAllArticles((prev) => [...prev, data.article.data]);
+
+        console.log("New article received:", data.article);
+      }
+    };
+    return () => ws.close();
   }, [queryClient, toast, data]);
 
   return (
@@ -66,9 +77,12 @@ export default function ArticlesPage() {
       ) : (
         <>
           <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {[...allArticles].reverse().slice(0, page * 9).map((article) => (
-              <ArticleCard key={article._id} article={article} />
-            ))}
+            {[...allArticles]
+              .reverse()
+              .slice(0, page * 9)
+              .map((article) => (
+                <ArticleCard key={article._id} article={article} />
+              ))}
           </div>
           {(data?.hasMore || allArticles.length > page * 9) && (
             <div className="flex justify-center mt-8">
