@@ -223,9 +223,8 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         </CardHeader>
         <CardContent className="flex-1 flex flex-col justify-between">
           <p
-            dangerouslySetInnerHTML={{ __html: article.content }}
             className="line-clamp-3 text-muted-foreground"
-          ></p>
+          >{ article.content}</p>
         </CardContent>
       </Card>
     </Link>
