@@ -90,7 +90,7 @@ export default function Article() {
         {article.published ? (
           <p className="text-sm text-muted-foreground">
             Published{" "}
-            {formatDistance(new Date(article.publishedAt!), new Date(), {
+            {formatDistance(new Date(article.publishedAt! || new Date()), new Date(), {
               addSuffix: true,
             })}
           </p>
